@@ -26,6 +26,14 @@ https://pay.weixin.qq.com/wiki/doc/api/native.php?chapter=11_1
 外网映射---内网穿透工具NATAPP---灵感源自QQ浏览器微信调试工具
 https://blog.csdn.net/kingrome2017/article/details/77989442
 
+
+微信支付服务商接入指引：
+https://kf.qq.com/faq/161220iqeAfA1612202yeURB.html
+
+api证书及秘钥：
+https://kf.qq.com/product/wechatpaymentmerchant.html#hid=2874
+
+
 下载地址：https://natapp.cn/#download
 
 配置和使用说明：https://blog.csdn.net/kingrome2017/article/details/77989442
