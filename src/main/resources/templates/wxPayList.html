@@ -1,0 +1,137 @@
+<html>
+<head >
+    <title>微信支付二维码生产</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script type="text/javascript" src="/js/jquery/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="/js/jquery/jquery.timers-1.2.js"></script>
+    <script type='text/javascript'>
+
+        $(function () {
+            getOutTradeNo();
+
+        });
+
+        //生成二维码
+        function save(){
+            var outTradeNo = $("#outTradeNo").val();
+            $("#payImg").attr("src",'/wxPay/payUrl'+"?totalFee="+ $("#totalFee").val()+"&outTradeNo=" + outTradeNo);
+
+            $('body').everyTime('2s','payStatusTimer',function(){
+                $.ajax({
+                    type : "POST",
+                    url : '/wxPay/payStatus?outTradeNo='+ outTradeNo +"&random=" + new Date().getTime(),
+                    contentType:"application/json",
+                    dataType : "json",
+                    async : "false",
+                    success : function(json) {
+                        if(json != null && json.status == 0){
+                            alert("支付成功！");
+                            $('body').stopTime ('payStatusTimer');
+                            return false;
+                        }
+                    },
+                    error:function(XMLHttpRequest,textStatus,errorThrown){
+                        alert("服务器错误！状态码："+json.status);
+                        // 状态
+                        console.log(json.readyState);
+                        // 错误信息
+                        console.log(json.statusText);
+                        return false;
+                    }
+                })
+            });
+
+
+
+        }
+
+        //退款
+        function refund(){
+            var outTradeNo = $("#outTradeNo").val();
+            $.ajax({
+                type : "POST",
+                url : '/wxPay/refundOrder',
+                data: {outTradeNo:$("#outTradeNo").val(),totalFee:$("#totalFee").val()},
+                success : function(json) {
+                    if(json != null && json.status == 0){
+                        alert("退款成功！");
+                        return false;
+                    }
+                },
+                error:function(XMLHttpRequest,textStatus,errorThrown){
+                    alert("服务器错误！状态码："+XMLHttpRequest.status);
+                    // 状态
+                    console.log(XMLHttpRequest.readyState);
+                    // 错误信息
+                    console.log(textStatus);
+                    return false;
+                }
+            });
+
+            /*$('body').everyTime('2s','payStatusTimer',function(){
+                $.ajax({
+                    type : "POST",
+                    url : '/wxPay/payStatus?outTradeNo='+ outTradeNo +"&random=" + new Date().getTime(),
+                    contentType:"application/json",
+                    dataType : "json",
+                    async : "false",
+                    success : function(json) {
+                        if(json != null && json.status == 0){
+                            alert("支付成功！");
+                            $('body').stopTime ('payStatusTimer');
+                            return false;
+                        }
+                    },
+                    error:function(XMLHttpRequest,textStatus,errorThrown){
+                        alert("服务器错误！状态码："+json.status);
+                        // 状态
+                        console.log(json.readyState);
+                        // 错误信息
+                        console.log(json.statusText);
+                        return false;
+                    }
+                })
+            });*/
+
+
+
+        }
+
+        //获取流水号
+        function getOutTradeNo(){
+            $.ajax({
+                type : "POST",
+                url : '/wxPay/outTradeNo',
+                success : function(json) {
+                    if(json != null){
+                        $("h3").html(json);
+                        $("#outTradeNo").val(json);
+                    }else{
+                        alert("获取流水号失败！");
+                    }
+                    return false;
+                },
+                error:function(XMLHttpRequest,textStatus,errorThrown){
+                    alert("服务器错误！状态码："+XMLHttpRequest.status);
+                    // 状态
+                    console.log(XMLHttpRequest.readyState);
+                    // 错误信息
+                    console.log(textStatus);
+                    return false;
+                }
+            });
+        }
+
+
+
+    </script>
+</head>
+<body>
+<p>订单流水号：<h3></h3><input id="outTradeNo"  type="hidden" value="${outTradeNo}"/></p>
+支付金额：<input id="totalFee" type="text" value="0.01"/>
+<button type="button" onclick="save();">支付</button>
+<button type="button" onclick="refund();">退款</button>
+&nbsp<img  id="payImg" width="300" height="300"  >
+
+</body>
+</html>
